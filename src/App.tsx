@@ -1,7 +1,13 @@
 import Router from "./routes";
+import GlobalStyle from "./styles/global";
 
-function App() {
-    return <Router />;
-}
+const App: React.FC = () => {
+    return (
+        <>
+            <GlobalStyle />
+            <Router />
+        </>
+    );
+};
 
 export default App;
