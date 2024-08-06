@@ -1,52 +1,68 @@
+import { FormEvent, useState } from "react";
+import api from "../../services/api";
+
 import { Title, Form, Repositories } from "./styles";
 import logoImg from "../../assets/logo.svg";
 import { FiChevronRight } from "react-icons/fi";
 
+interface Repository {
+    full_name: string;
+    description: string;
+    owner: {
+        login: string;
+        avatar_url: string;
+    };
+}
+
 const Dashboard = () => {
+    const [newRepo, setNewRepo] = useState("");
+    const [repositories, setRepositories] = useState<Repository[]>([]);
+
+    async function handleAddRepository(
+        event: FormEvent<HTMLFormElement>
+    ): Promise<void> {
+        event.preventDefault();
+
+        const response = await api.get<Repository>(`repos/${newRepo}`);
+
+        console.log(response.data);
+
+        const repository = response.data;
+
+        setRepositories([...repositories, repository]);
+
+        setNewRepo("");
+    }
+
     return (
         <>
             <img src={logoImg} alt="Github Explorer" />
             <Title>Explore repositórios no Github</Title>
 
-            <Form action="">
-                <input type="text" placeholder="Digite o nome do repositório" />
+            <Form onSubmit={handleAddRepository}>
+                <input
+                    type="text"
+                    placeholder="Digite o nome do repositório"
+                    value={newRepo}
+                    onChange={(e) => setNewRepo(e.target.value)}
+                />
                 <button type="submit">Pesquisar</button>
             </Form>
 
             <Repositories>
-                <a href="teste">
-                    <img
-                        src="https://avatars.githubusercontent.com/u/103914662?s=400&u=f8dab7d84cddd4dfa463bf5fb09bc31d4c76ffc7&v=4"
-                        alt="Ivan Leonardi"
-                    />
-                    <div>
-                        <strong>ivan-leonardi/app-finance</strong>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Inventore, impedit!</p>
-                    </div>
-                    <FiChevronRight size={20} />
-                </a>
-                <a href="teste">
-                    <img
-                        src="https://avatars.githubusercontent.com/u/103914662?s=400&u=f8dab7d84cddd4dfa463bf5fb09bc31d4c76ffc7&v=4"
-                        alt="Ivan Leonardi"
-                    />
-                    <div>
-                        <strong>ivan-leonardi/app-finance</strong>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Inventore, impedit!</p>
-                    </div>
-                    <FiChevronRight size={20} />
-                </a>
-                <a href="teste">
-                    <img
-                        src="https://avatars.githubusercontent.com/u/103914662?s=400&u=f8dab7d84cddd4dfa463bf5fb09bc31d4c76ffc7&v=4"
-                        alt="Ivan Leonardi"
-                    />
-                    <div>
-                        <strong>ivan-leonardi/app-finance</strong>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Inventore, impedit!</p>
-                    </div>
-                    <FiChevronRight size={20} />
-                </a>
+                {repositories.map((repository) => (
+                    <a key={repository.full_name} href="teste">
+                        <img
+                            src={repository.owner.avatar_url}
+                            alt={repository.owner.login}
+                        />
+                        <div>
+                            <strong>{repository.full_name}</strong>
+                            <p>{repository.description}</p>
+                        </div>
+                        <FiChevronRight size={20} />
+                    </a>
+                ))}
             </Repositories>
         </>
     );
