@@ -1,7 +1,7 @@
 import { FormEvent, useState } from "react";
 import api from "../../services/api";
 
-import { Title, Form, Repositories } from "./styles";
+import { Title, Form, Repositories, Error } from "./styles";
 import logoImg from "../../assets/logo.svg";
 import { FiChevronRight } from "react-icons/fi";
 
@@ -16,6 +16,7 @@ interface Repository {
 
 const Dashboard = () => {
     const [newRepo, setNewRepo] = useState("");
+    const [inputError, setInputError] = useState("");
     const [repositories, setRepositories] = useState<Repository[]>([]);
 
     async function handleAddRepository(
@@ -23,15 +24,24 @@ const Dashboard = () => {
     ): Promise<void> {
         event.preventDefault();
 
-        const response = await api.get<Repository>(`repos/${newRepo}`);
+        if (!newRepo) {
+            setInputError("Digite o autor/nome do repositório");
+            return;
+        }
+        try {
+            const response = await api.get<Repository>(`repos/${newRepo}`);
 
-        console.log(response.data);
+            console.log(response.data);
 
-        const repository = response.data;
+            const repository = response.data;
 
-        setRepositories([...repositories, repository]);
+            setRepositories([...repositories, repository]);
 
-        setNewRepo("");
+            setNewRepo("");
+            setInputError("");
+        } catch (error) {
+            setInputError("Erro na busca por esse repositório");
+        }
     }
 
     return (
@@ -39,7 +49,7 @@ const Dashboard = () => {
             <img src={logoImg} alt="Github Explorer" />
             <Title>Explore repositórios no Github</Title>
 
-            <Form onSubmit={handleAddRepository}>
+            <Form hasError={!!inputError} onSubmit={handleAddRepository}>
                 <input
                     type="text"
                     placeholder="Digite o nome do repositório"
@@ -48,6 +58,8 @@ const Dashboard = () => {
                 />
                 <button type="submit">Pesquisar</button>
             </Form>
+
+            {inputError && <Error>{inputError}</Error>}
 
             <Repositories>
                 {repositories.map((repository) => (
