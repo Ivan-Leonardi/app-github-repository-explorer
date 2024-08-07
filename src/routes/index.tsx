@@ -1,15 +1,15 @@
-import { Routes, Route, BrowserRouter as Router } from "react-router-dom";
+import { Routes, Route, BrowserRouter as RouterProvider} from "react-router-dom";
 
 import Dashboard from "../pages/Dashboard";
 import Repository from "../pages/Repository";
 
 const RouterPage: React.FC = () => (
-    <Router>
+    <RouterProvider>
         <Routes>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/repository" element={<Repository />} />
+            <Route path="/repositories/*" element={<Repository />} />
         </Routes>
-    </Router>
+    </RouterProvider>
 );
 
 export default RouterPage;
